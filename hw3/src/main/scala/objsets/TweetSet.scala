@@ -1,5 +1,7 @@
 package objsets
 
+import java.util.NoSuchElementException
+
 import TweetReader._
 
 /**
@@ -65,7 +67,7 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-    def mostRetweeted: Tweet = ???
+  def mostRetweeted: Tweet
   
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
@@ -76,7 +78,7 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-    def descendingByRetweet: TweetList = ???
+  def descendingByRetweet: TweetList
   
   /**
    * The following methods are already implemented
@@ -113,6 +115,10 @@ class Empty extends TweetSet {
 
   def union(that: TweetSet): TweetSet = that
 
+  def mostRetweeted: Tweet = new Tweet("", "", -1) // TODO: throw new NoSuchElementException
+
+  def descendingByRetweet: TweetList = Nil
+
   /**
    * The following methods are already implemented
    */
@@ -139,6 +145,24 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   }
 
   def union(that: TweetSet): TweetSet = left.union(right.union(that.incl(elem)))
+
+  def mostRetweeted: Tweet = {
+    def mostRetweetedAcc(acc: Tweet): Tweet = {
+      var lTweet = left.mostRetweeted
+      var rTweet = right.mostRetweeted
+      var maxChildTweet = if (lTweet.retweets > rTweet.retweets) lTweet else rTweet
+      if (acc.retweets > maxChildTweet.retweets) acc else maxChildTweet
+    }
+    mostRetweetedAcc(elem)
+  }
+
+  def descendingByRetweet: TweetList = {
+    def descendingByRetweetAcc(acc: TweetList): TweetList = {
+      var tweet = mostRetweeted
+      new Cons(tweet, remove(tweet).descendingByRetweet)
+    }
+    descendingByRetweetAcc(Nil)
+  }
 
   /**
    * The following methods are already implemented
