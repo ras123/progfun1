@@ -44,7 +44,7 @@ abstract class TweetSet {
    * and be implemented in the subclasses?
    */
   def filter(p: Tweet => Boolean): TweetSet
-  
+
   /**
    * This is a helper method for `filter` that propagetes the accumulated tweets.
    */
@@ -57,7 +57,7 @@ abstract class TweetSet {
    * and be implemented in the subclasses?
    */
   def union(that: TweetSet): TweetSet
-  
+
   /**
    * Returns the tweet from this set which has the greatest retweet count.
    *
@@ -68,7 +68,7 @@ abstract class TweetSet {
    * and be implemented in the subclasses?
    */
   def mostRetweeted: Tweet
-  
+
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
    * in descending order. In other words, the head of the resulting list should
@@ -79,7 +79,7 @@ abstract class TweetSet {
    * and be implemented in the subclasses?
    */
   def descendingByRetweet: TweetList
-  
+
   /**
    * The following methods are already implemented
    */
@@ -148,9 +148,9 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def mostRetweeted: Tweet = {
     def mostRetweetedAcc(acc: Tweet): Tweet = {
-      var lTweet = left.mostRetweeted
-      var rTweet = right.mostRetweeted
-      var maxChildTweet = if (lTweet.retweets > rTweet.retweets) lTweet else rTweet
+      val lTweet = left.mostRetweeted
+      val rTweet = right.mostRetweeted
+      val maxChildTweet = if (lTweet.retweets > rTweet.retweets) lTweet else rTweet
       if (acc.retweets > maxChildTweet.retweets) acc else maxChildTweet
     }
     mostRetweetedAcc(elem)
@@ -158,7 +158,7 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def descendingByRetweet: TweetList = {
     def descendingByRetweetAcc(acc: TweetList): TweetList = {
-      var tweet = mostRetweeted
+      val tweet = mostRetweeted
       new Cons(tweet, remove(tweet).descendingByRetweet)
     }
     descendingByRetweetAcc(Nil)
@@ -223,7 +223,7 @@ object GoogleVsApple {
 
   lazy val googleTweets: TweetSet = TweetReader.allTweets.filter(filterHelper(google))
   lazy val appleTweets: TweetSet = TweetReader.allTweets.filter(filterHelper(apple))
-  
+
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
