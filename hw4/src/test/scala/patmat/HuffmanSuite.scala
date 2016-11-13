@@ -12,7 +12,15 @@ class HuffmanSuite extends FunSuite {
 	trait TestTrees {
 		val t1 = Fork(Leaf('a',2), Leaf('b',3), List('a','b'), 5)
 		val t2 = Fork(Fork(Leaf('a',2), Leaf('b',3), List('a','b'), 5), Leaf('d',4), List('a','b','d'), 9)
-	}
+
+    def getCount(TheChar: Char, list: List[(Char, Int)]): Int = {
+      list match {
+        case Nil => 0
+        case (TheChar, theInt) :: xs => theInt
+        case _ :: xs => getCount(TheChar, xs)
+      }
+    }
+  }
 
 
   test("weight of a larger tree") {
@@ -33,6 +41,26 @@ class HuffmanSuite extends FunSuite {
     assert(string2Chars("hello, world") === List('h', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd'))
   }
 
+  test("times empty list") {
+    assert(times(List()) === Nil)
+  }
+
+  test("times simple list") {
+    new TestTrees {
+      val list = List('a', 'b')
+      assert(getCount('a', times(list)) === 1)
+      assert(getCount('b', times(list)) === 1)
+      assert(getCount('c', times(list)) === 0)
+    }
+  }
+
+  test("times list with repeating character") {
+    new TestTrees {
+      val list = List('a', 'b', 'a')
+      assert(getCount('a', times(list)) === 2)
+      assert(getCount('b', times(list)) === 1)
+    }
+  }
 
   test("makeOrderedLeafList for some frequency table") {
     assert(makeOrderedLeafList(List(('t', 2), ('e', 1), ('x', 3))) === List(Leaf('e',1), Leaf('t',2), Leaf('x',3)))
