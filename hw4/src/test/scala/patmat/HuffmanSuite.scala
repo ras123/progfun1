@@ -95,4 +95,14 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
+  test("convert test") {
+    new TestTrees {
+      val expected1 = List(('a', List(0)), ('b', List(1)))
+      assert(convert(t1) === expected1)
+
+      val expected2 = List(('a', List(0, 0)), ('b', List(0, 1)), ('d', List(1)))
+      assert(convert(t2) === expected2)
+    }
+  }
+
 }
