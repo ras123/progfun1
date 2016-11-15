@@ -162,7 +162,7 @@ object Huffman {
       }
     }
 
-    if (singleton(trees)) {
+    if (trees == Nil || singleton(trees)) {
       trees
     } else {
       insertTree(makeCodeTree(trees.head, trees.tail.head), trees.tail.tail)
