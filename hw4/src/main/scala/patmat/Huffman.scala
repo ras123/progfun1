@@ -218,18 +218,14 @@ object Huffman {
    */
   def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
     def decodeAcc(acc: List[Char], treePath: CodeTree, remainingBits: List[Bit]): List[Char] = {
-      remainingBits match {
-        case Nil => if (acc == Nil) acc else acc.reverse
-        case 0 :: xs =>
-          treePath match {
-            case fork: Fork => decodeAcc(acc, fork.left, xs)
-            case leaf: Leaf => decodeAcc(leaf.char :: acc, tree, xs)
+      treePath match {
+        case fork: Fork =>
+          remainingBits match {
+            case Nil => acc
+            case 0 :: xs => decodeAcc(acc, fork.left, xs)
+            case 1 :: xs => decodeAcc(acc, fork.right, xs)
           }
-        case 1 :: xs =>
-          treePath match {
-            case fork: Fork => decodeAcc(acc, fork.right, xs)
-            case leaf: Leaf => decodeAcc(leaf.char :: acc, tree, xs)
-          }
+        case leaf: Leaf => decodeAcc(acc ++ List(leaf.char), tree, remainingBits)
       }
     }
 
@@ -261,7 +257,32 @@ object Huffman {
    * This function encodes `text` using the code tree `tree`
    * into a sequence of bits.
    */
-    def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    def dfs(treePath: CodeTree, acc: List[Bit], curChar: Char): List[Bit] = {
+      treePath match {
+        case fork: Fork =>
+          val charEncodingL = dfs(fork.left, 0 :: acc, curChar)
+          val charEncodingR = dfs(fork.right, 1 :: acc, curChar)
+          if (charEncodingL != Nil) {
+            charEncodingL
+          } else if (charEncodingR != Nil) {
+            charEncodingR
+          } else {
+            Nil
+          }
+        case leaf: Leaf => if (leaf.char == curChar) acc.reverse else Nil
+      }
+    }
+
+    def encodeAcc(encoding: List[Bit])(remainingText: List[Char]): List[Bit] = {
+      remainingText match {
+        case Nil => encoding
+        case x :: xs => encodeAcc(encoding ++ dfs(tree, Nil, x))(xs)
+      }
+    }
+
+    encodeAcc(Nil)(text)
+  }
   
   // Part 4b: Encoding using code table
 
