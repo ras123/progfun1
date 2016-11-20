@@ -51,6 +51,35 @@ class AnagramsSuite extends FunSuite  {
     assert(combinations(Nil) === List(Nil))
   }
 
+  test("combinations: a1") {
+    val occurrences = List(('a', 1))
+    val expectedComb = List(
+      List(),
+      List(('a', 1))
+    )
+    assert(combinations(occurrences).toSet === expectedComb.toSet)
+  }
+
+  test("combinations: a2") {
+    val occurrences = List(('a', 2))
+    val expectedComb = List(
+      List(),
+      List(('a', 1)),
+      List(('a', 2))
+    )
+    assert(combinations(occurrences).toSet === expectedComb.toSet)
+  }
+
+  test("combinations: ab") {
+    val occurrences = List(('a', 1), ('b', 1))
+    val expectedComb = List(
+      List(),
+      List(('a', 1)),
+      List(('b', 1))
+    )
+    assert(combinations(occurrences).toSet === expectedComb.toSet)
+  }
+
   test("combinations: abba") {
     val abba = List(('a', 2), ('b', 2))
     val abbacomb = List(
