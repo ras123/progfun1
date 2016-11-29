@@ -94,31 +94,54 @@ object Anagrams {
    *  Note that the order of the occurrence list subsets does not matter -- the subsets
    *  in the example above could have been displayed in some other order.
    */
-  // Occurrences = List[(Char, Int)]
-  // [()]
-  // [('a', 1)]
-  // [('a', 2)]
-  // [('a', 1), ('b', 1)]
   def combinations(occurrences: Occurrences): List[Occurrences] = {
-    def helper(acc: List[Occurrences], remainingOcc: Occurrences): List[Occurrences] = {
-      if (remainingOcc.isEmpty) {
-        acc
+    // Returns subsets of occurrences with all possible char counts
+    // Eg. [('a', 2)] => [[('a', 1)], [('a', 2)]]
+    // [('a', 1), ('b', 2)] => [[('a', 1), ('b', 1)], [('a', 1), ('b', 2)]]
+    def getSubsets(occurrences: Occurrences): List[Occurrences] = {
+      occurrences match {
+        case Nil => List(List())
+        case x :: xs =>
+          val tailSubsets = getSubsets(xs)
+          // Prepend possible char combinations for current element to all tail subsets
+          val subsets = for {
+            charCount <- 1 to x._2
+            tailSubset <- tailSubsets
+          } yield (x._1, charCount) :: tailSubset
+          subsets.toList
+      }
+    }
+
+    // Returns all combinations of occurrences
+    // Eg. [('a', 1), ('b', 2)] => [[], [('a', 1)], [('b', 2)], [('a', 1), ('b', 2)]]
+    def getCombs(len: Int, occurrences: Occurrences): List[Occurrences] = {
+      if (len == 0 || occurrences == Nil) {
+        List(List())
       } else {
-        remainingOcc match {
-          case x :: xs =>
-            if (x._2 > 1) {
-              helper(List(x) :: acc, (x._1, x._2 - 1) :: xs)
-            } else {
-              helper(List(x) :: acc, xs)
-            }
+        var combs: List[Occurrences] = Nil
+        for (i <- 0 to occurrences.length - 1) {
+          val tail = occurrences.splitAt(i + 1)._2
+          // Only retrieve combinations if desired length is less than length of tail
+          if ((len - 1) <= tail.length) {
+            val tailCombs = getCombs(len - 1, tail)
+            // Prepend current element to possible combinations and add to combs
+            combs = combs ::: tailCombs.map(xs => occurrences(i) :: xs)
+          }
         }
+        combs
       }
     }
 
     if (occurrences.isEmpty) {
-      List(Nil)
+      List(List())
     } else {
-      Nil :: helper(Nil, occurrences)
+      var combinations: List[Occurrences] = Nil
+      for (len <- 0 to occurrences.length) {
+        for (comb <- getCombs(len, occurrences)) {
+          combinations = combinations ::: getSubsets(comb)
+        }
+      }
+      combinations.distinct
     }
   }
 
