@@ -155,7 +155,18 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
+    var subtractedMap = x.toMap
+    for (occurrence <- y) {
+      if (subtractedMap.apply(occurrence._1) == occurrence._2) {
+        subtractedMap = subtractedMap - occurrence._1
+      } else {
+        val newValue = subtractedMap.apply(occurrence._1) - occurrence._2
+        subtractedMap = subtractedMap.updated(occurrence._1, newValue)
+      }
+    }
+    subtractedMap.toList
+  }
 
   /** Returns a list of all anagram sentences of the given sentence.
    *
