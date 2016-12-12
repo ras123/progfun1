@@ -70,7 +70,7 @@ object Anagrams {
   }
 
   /** Returns all the anagrams of a given word. */
-  def wordAnagrams(word: Word): List[Word] = dictionaryByOccurrences(wordOccurrences(word))
+  def wordAnagrams(word: Word): List[Word] = dictionaryByOccurrences.getOrElse(wordOccurrences(word), List())
 
   /** Returns the list of all subsets of the occurrence list.
    *  This includes the occurrence itself, i.e. `List(('k', 1), ('o', 1))`
@@ -165,7 +165,7 @@ object Anagrams {
         subtractedMap = subtractedMap.updated(occurrence._1, newValue)
       }
     }
-    subtractedMap.toList
+    subtractedMap.toList.sorted
   }
 
   /** Returns a list of all anagram sentences of the given sentence.
@@ -208,5 +208,40 @@ object Anagrams {
    *
    *  Note: There is only one anagram of an empty sentence.
    */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = ???
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+    def sentenceAnagramsHelper(occurrence: Occurrences): List[Sentence] = {
+      if (occurrence.isEmpty) {
+        Nil
+      } else {
+        val occurrenceSubsets = combinations(occurrence)
+        var anagrams: List[Sentence] = Nil
+        for (subset <- occurrenceSubsets) {
+          if (dictionaryByOccurrences.contains(subset)) {
+            val words = dictionaryByOccurrences(subset)
+            val remainingOccurrence = subtract(occurrence, subset)
+            val remainingAnagrams = sentenceAnagramsHelper(remainingOccurrence)
+            if (remainingAnagrams != Nil) {
+              anagrams = anagrams ::: (for {
+                word <- words
+                remainingAnagram <- remainingAnagrams
+              } yield word :: remainingAnagram)
+            } else {
+              anagrams = anagrams ::: (for {
+                word <- words
+              } yield List(word))
+            }
+          }
+        }
+        anagrams
+      }
+    }
+
+    if (sentence.isEmpty) {
+      List(List())
+    } else {
+      val occurrences = sentenceOccurrences(sentence)
+      val anagrams = sentenceAnagramsHelper(occurrences)
+      anagrams.filter((anagram: Sentence) => sentenceOccurrences(anagram) == occurrences)
+    }
+  }
 }
